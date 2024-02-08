@@ -20,7 +20,7 @@ contract Soulmate is ERC721 {
 
     string[4] niceWords = ["sweetheart", "darling", "my dear", "honey"];
 
-    mapping(uint256 id => address[2] owners) private idToOwners;
+    mapping(uint256 id => address[2] owners) private idToOwners; // token ID => [soulmate1, soulmate2]
     mapping(uint256 id => uint256 timestamp) public idToCreationTimestamp;
     mapping(address soulmate1 => address soulmate2) public soulmateOf;
     mapping(address owner => uint256 id) public ownerToId;
@@ -39,16 +39,9 @@ contract Soulmate is ERC721 {
 
     event SoulmateIsWaiting(address indexed soulmate);
 
-    event SoulmateAreReunited(
-        address indexed soulmate1,
-        address indexed soulmate2,
-        uint256 indexed tokenId
-    );
+    event SoulmateAreReunited(address indexed soulmate1, address indexed soulmate2, uint256 indexed tokenId);
 
-    event CoupleHasDivorced(
-        address indexed soulmate1,
-        address indexed soulmate2
-    );
+    event CoupleHasDivorced(address indexed soulmate1, address indexed soulmate2);
 
     /*//////////////////////////////////////////////////////////////
                                FUNCTIONS
@@ -62,8 +55,9 @@ contract Soulmate is ERC721 {
     function mintSoulmateToken() public returns (uint256) {
         // Check if people already have a soulmate, which means already have a token
         address soulmate = soulmateOf[msg.sender];
-        if (soulmate != address(0))
+        if (soulmate != address(0)) {
             revert Soulmate__alreadyHaveASoulmate(soulmate);
+        }
 
         address soulmate1 = idToOwners[nextID][0];
         address soulmate2 = idToOwners[nextID][1];
@@ -112,12 +106,7 @@ contract Soulmate is ERC721 {
     /// @notice Allows any soulmates with the same NFT ID to read in a shared space on blockchain.
     function readMessageInSharedSpace() external view returns (string memory) {
         // Add a little touch of romantism
-        return
-            string.concat(
-                sharedSpace[ownerToId[msg.sender]],
-                ", ",
-                niceWords[block.timestamp % niceWords.length]
-            );
+        return string.concat(sharedSpace[ownerToId[msg.sender]], ", ", niceWords[block.timestamp % niceWords.length]);
     }
 
     /// @notice Cancel possibily for 2 lovers to collect LoveToken from the airdrop.

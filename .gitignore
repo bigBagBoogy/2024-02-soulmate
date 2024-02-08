@@ -12,3 +12,6 @@ docs/
 
 # Dotenv file
 .env
+/audit-data
+node_modules
+.certora_internal

@@ -23,8 +23,9 @@ contract Airdrop {
     ISoulmate public immutable soulmateContract;
     IVault public immutable airdropVault;
 
-    // e how many tokens have been claimed by this couple:
+    // e how many tokens have been claimed by this couple: // should be "user" not couple
     mapping(address owner => uint256 alreadyClaimed) private _claimedBy;
+    // user => amount claimed, so `_claimedBy` is a shitty name for this.
 
     /*//////////////////////////////////////////////////////////////
                                  EVENTS
@@ -63,12 +64,13 @@ contract Airdrop {
 
         uint256 tokenAmountToDistribute = (numberOfDaysInCouple * 10 ** loveToken.decimals()) - amountAlreadyClaimed;
 
-        // Dust collector
+        // Dust collector  <== q meaning get the last scraps?
         // @audit it seems that when the loveToken amount to distribute is bigger than the balance of the airdrop vault, we'll change tokenAmountToDistribute and set
         // it to the balance of the airdrop vault.
         if (tokenAmountToDistribute >= loveToken.balanceOf(address(airdropVault))) {
             tokenAmountToDistribute = loveToken.balanceOf(address(airdropVault));
         }
+        // update _claimedBy = amount claimed by user
         _claimedBy[msg.sender] += tokenAmountToDistribute;
 
         emit TokenClaimed(msg.sender, tokenAmountToDistribute);

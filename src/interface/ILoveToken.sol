@@ -13,6 +13,7 @@ interface ILoveToken {
     function balanceOf(address user) external returns (uint256 balance);
 
     function claim() external;
-
+    // q is this manager initialized in a constructor anywhere?
+    // q is there a risk of a race condition here?
     function initVault(address manager) external;
 }

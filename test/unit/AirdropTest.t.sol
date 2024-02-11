@@ -65,5 +65,48 @@ contract AirdropTest is BaseTest {
         uint256 calculatedAmount = ((fuzzedInputTime + 1) / 86400) * 1e18; // = days in the relationship
         // no more tokens than (time + 1) / 86400 == amount of days in "marriage"
         assertLe(loveToken.balanceOf(soulmate1), calculatedAmount);
+
+        // part 2 of test -- check that the love tokens are personal to each soulmate
+        uint256 extraTime = fuzzedInputTime + 172801;
+        vm.warp(extraTime); // 2 days later
+        vm.prank(soulmate2);
+        airdropContract.claim();
+        assertLe(loveToken.balanceOf(soulmate1), loveToken.balanceOf(soulmate2));
+        console2.log(loveToken.balanceOf(soulmate1), loveToken.balanceOf(soulmate2));
+
+        // part 3 of test -- check that claiming the same day twice doesn't mint more
+        vm.prank(soulmate2);
+        vm.expectRevert();
+        airdropContract.claim();
+
+        // this is a non issue:
+        // part 4 of test -- check that address(0) can't mint
+        // vm.prank(address(0));
+        // vm.expectRevert(); // this fails. Address 0 is able to mint tokens
+        // airdropContract.claim();
     }
-} // 15 broke the test ???
+    // there is 500_000_000 tokens in the vault. 5e8 is
+
+    function test_dustcollectorWorksFuzz(uint256 fuzzedInputTime) public {
+        // Bound the input to be between 1 and 1000000 seconds
+        fuzzedInputTime = bound(fuzzedInputTime, 6e13, 5e14);
+        _mintOneTokenForBothSoulmates();
+        vm.warp(fuzzedInputTime);
+        vm.prank(soulmate1);
+        airdropContract.claim(); // should have 5e8 love tokens (5e26 wei)
+        assertLe(loveToken.balanceOf(soulmate1), 5e26);
+        // now that soulmate 1 has all love tokens, let's check that soulmate 2 can't claim
+        vm.prank(soulmate2);
+        assertEq(loveToken.balanceOf(soulmate2), 0);
+    }
+
+    event SoulmateIsWaiting(address indexed soulmate);
+    // Event Emission: Check that the TokenClaimed event is emitted with the correct parameters after a successful claim.
+
+    function test_emitsEventCorrectly() public {
+        vm.expectEmit();
+        emit SoulmateIsWaiting(msg.sender);
+        _mintOneTokenForBothSoulmates();
+        // emit SoulmateIsWaiting(msg.sender);
+    }
+}

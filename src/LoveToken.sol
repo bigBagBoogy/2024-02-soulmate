@@ -18,7 +18,7 @@ contract LoveToken is ERC20 {
                             STATE VARIABLES
     //////////////////////////////////////////////////////////////*/
     ISoulmate public immutable soulmateContract;
-    address public immutable airdropVault;
+    address public immutable airdropVault; // bob
     address public immutable stakingVault;
 
     /*//////////////////////////////////////////////////////////////
@@ -33,16 +33,17 @@ contract LoveToken is ERC20 {
 
     constructor(
         ISoulmate _soulmateContract,
-        address _airdropVault,
+        address _airdropVault, // bob
         address _stakingVault
     ) ERC20("LoveToken", "<3", 18) {
         soulmateContract = _soulmateContract;
-        airdropVault = _airdropVault;
+        airdropVault = _airdropVault; // bob
         stakingVault = _stakingVault;
     }
 
     /// @notice Called at the launch of the protocol.
     /// @notice Will distribute all the supply to Airdrop and Staking Contract.
+    // e this will take `address managerContract` as parameter. This can either be Airdrop or Staking or both possibly
     function initVault(address managerContract) public {
         if (msg.sender == airdropVault) {
             _mint(airdropVault, 500_000_000 ether);
@@ -52,6 +53,8 @@ contract LoveToken is ERC20 {
             _mint(stakingVault, 500_000_000 ether);
             approve(managerContract, 500_000_000 ether);
             emit StakingInitialized(managerContract);
-        } else revert LoveToken__Unauthorized();
+        } else {
+            revert LoveToken__Unauthorized();
+        }
     }
 }

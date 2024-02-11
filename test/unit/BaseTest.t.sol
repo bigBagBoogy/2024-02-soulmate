@@ -53,6 +53,7 @@ contract BaseTest is Test {
         // init
         vm.stopPrank();
     }
+    // first setup "modifier" for use across tests
 
     function _mintOneTokenForBothSoulmates() internal {
         vm.prank(soulmate1);
@@ -61,6 +62,7 @@ contract BaseTest is Test {
         vm.prank(soulmate2);
         soulmateContract.mintSoulmateToken();
     }
+    // an extension of the first "modifier" scenario.  this function takes the desired amount of tokens as input and then calculates the number of days that it will take for the tokens to be able to be minted. This is `numberDays`. then it warps the block timestamp by `numberDays` days and lastly, it mints the tokens for both soulmates.
 
     function _giveLoveTokenToSoulmates(uint256 amount) internal {
         _mintOneTokenForBothSoulmates();
@@ -73,9 +75,11 @@ contract BaseTest is Test {
         vm.prank(soulmate2);
         airdropContract.claim();
     }
+    // an extension of the third "modifier" scenario. in addition to the above, this function also deposits the tokens into the staking contract.
 
     function _depositTokenToStake(uint256 amount) internal {
         _giveLoveTokenToSoulmates(amount);
+
         vm.startPrank(soulmate1);
         loveToken.approve(address(stakingContract), amount);
         stakingContract.deposit(amount);

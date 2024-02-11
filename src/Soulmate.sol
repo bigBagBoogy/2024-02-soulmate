@@ -136,13 +136,14 @@ contract Soulmate is ERC721 {
     }
 
     function totalSupply() external view returns (uint256) {
-        return nextID;
+        return nextID; // total couples
+            // @audit is `totalSupply` not also an EVM function? will there be conflicts?
     }
 
     function totalSouls() external view returns (uint256) {
-        return nextID * 2;
-        // @audit this seems to not count the single soulmates.
-        // when there are 3 users the id is still 1, then totalSouls is 3
-        // q what happens when there's divorse?
+        return nextID * 2; // total peeps in a couple
+            // @audit this seems to not count the single soulmates.
+            // when there are 3 users the id is still 1, then totalSouls is 3
+            // q what happens when there's divorse?
     }
 }

@@ -272,4 +272,15 @@ contract SoulmateTest is BaseTest {
     //     vm.expectRevert();
     //     soulmateContract.mintSoulmateToken();
     // }
+    function test_singleSoulmateCanGetDivorced() public {
+        vm.startPrank(soulmate1);
+        soulmateContract.getDivorced();
+        console2.log("divorce status is: ", soulmateContract.isDivorced());
+        assertEq(soulmateContract.isDivorced(), true);
+    }
+
+    function test_hasSoulmate() public {
+        makeAddr("alice");
+        console2.log("alice's friend is: ", soulmateContract.soulmateOf(alice));
+    }
 }

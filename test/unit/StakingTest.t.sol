@@ -106,4 +106,23 @@ contract StakingTest is BaseTest {
         console2.log(loveToken.balanceOf(soulmate1)); // 0
         console2.log(stakingContract.userStakes(soulmate1)); // 10
     }
+
+    function test_claimingAfter13daysBurns6daysOfStaking() public {
+        _depositTokenToStake(1 ether);
+        uint256 almost2weeks = 2 weeks - 1 seconds;
+        console2.log("almost2weeks: ", almost2weeks); // 1209599
+        vm.warp(almost2weeks); // 1209599
+
+        vm.startPrank(soulmate1);
+        console2.log("last claim: ", stakingContract.lastClaim(soulmate1));
+        stakingContract.claimRewards();
+        console2.log("soulmate1's lovetoken balance: ", loveToken.balanceOf(soulmate1)); // 1
+        console2.log("last claim: ", stakingContract.lastClaim(soulmate1));
+
+        vm.warp(almost2weeks + 6 days); // now the user is staking for 20+ days
+        vm.expectRevert();
+        stakingContract.claimRewards(); // no, even after 20+ days the user can't claim a second token, because she minted at the "wrong" moment.
+        console2.log("soulmate1's lovetoken balance: ", loveToken.balanceOf(soulmate1)); // 1
+        console2.log("last claim: ", stakingContract.lastClaim(soulmate1));
+    }
 }

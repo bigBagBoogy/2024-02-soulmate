@@ -36,11 +36,7 @@ contract Staking {
                                FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    constructor(
-        ILoveToken _loveToken,
-        ISoulmate _soulmateContract,
-        IVault _stakingVault
-    ) {
+    constructor(ILoveToken _loveToken, ISoulmate _soulmateContract, IVault _stakingVault) {
         loveToken = _loveToken;
         soulmateContract = _soulmateContract;
         stakingVault = _stakingVault;
@@ -48,10 +44,11 @@ contract Staking {
 
     /// @notice Increase the userStakes variable and transfer LoveToken to this contract.
     function deposit(uint256 amount) public {
-        if (loveToken.balanceOf(address(stakingVault)) == 0)
+        if (loveToken.balanceOf(address(stakingVault)) == 0) {
             revert Staking__NoMoreRewards();
+        }
         // No require needed because of overflow protection
-        userStakes[msg.sender] += amount;
+        userStakes[msg.sender] += amount; // we "upped" the userStakes
         loveToken.transferFrom(msg.sender, address(this), amount);
 
         emit Deposited(msg.sender, amount);
@@ -71,29 +68,24 @@ contract Staking {
         uint256 soulmateId = soulmateContract.ownerToId(msg.sender);
         // first claim
         if (lastClaim[msg.sender] == 0) {
-            lastClaim[msg.sender] = soulmateContract.idToCreationTimestamp(
-                soulmateId
-            );
+            lastClaim[msg.sender] = soulmateContract.idToCreationTimestamp(soulmateId);
         }
 
         // How many weeks passed since the last claim.
-        // Thanks to round-down division, it will be the lower amount possible until a week has completly pass.
-        uint256 timeInWeeksSinceLastClaim = ((block.timestamp -
-            lastClaim[msg.sender]) / 1 weeks);
-
-        if (timeInWeeksSinceLastClaim < 1)
+        // Thanks to round-down division, it will be the lower amount possible until a week has completly passed.
+        uint256 timeInWeeksSinceLastClaim = ((block.timestamp - lastClaim[msg.sender]) / 1 weeks);
+        // it seems that the way this is setup, if the user has not staked for just shy of 2 weeks,
+        // they will claim 1 token, and have the remaining 6+ days reset to 0 in:
+        // lastClaim[msg.sender] = block.timestamp; Effectively losing almost 1 token
+        if (timeInWeeksSinceLastClaim < 1) {
             revert Staking__StakingPeriodTooShort();
+        }
 
         lastClaim[msg.sender] = block.timestamp;
 
         // Send the same amount of LoveToken as the week waited times the number of token staked
-        uint256 amountToClaim = userStakes[msg.sender] *
-            timeInWeeksSinceLastClaim;
-        loveToken.transferFrom(
-            address(stakingVault),
-            msg.sender,
-            amountToClaim
-        );
+        uint256 amountToClaim = userStakes[msg.sender] * timeInWeeksSinceLastClaim;
+        loveToken.transferFrom(address(stakingVault), msg.sender, amountToClaim);
 
         emit RewardsClaimed(msg.sender, amountToClaim);
     }

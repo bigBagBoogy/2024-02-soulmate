@@ -109,4 +109,18 @@ contract AirdropTest is BaseTest {
         _mintOneTokenForBothSoulmates();
         // emit SoulmateIsWaiting(msg.sender);
     }
+    // a slither test:
+
+    function test_underflowClaim() public {
+        _mintOneTokenForBothSoulmates();
+        vm.warp(86400);
+        vm.prank(soulmate1);
+        vm.expectRevert();
+        airdropContract.claim();
+        console2.log(loveToken.balanceOf(soulmate1));
+        vm.warp(86401);
+        vm.prank(soulmate1);
+        airdropContract.claim();
+        console2.log(loveToken.balanceOf(soulmate1));
+    }
 }

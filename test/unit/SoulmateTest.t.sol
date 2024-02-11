@@ -91,14 +91,7 @@ contract SoulmateTest is BaseTest {
         // vm.expectRevert(soulmateContract.mintSoulmateToken(), "alreadyHaveASoulmate");
     }
 
-    // function test_MintSoulmateToken_WaitingForSecondSoulmate() public {
-    //     // Set up the contract state such that the caller is waiting for a second soulmate
-    //     soulmateContract.idToOwners(1, 0, address(0x1)); // Assuming soulmate 1 is not 0
-    //     // Call mintSoulmateToken to complete the pairing
-    //     uint256 tokenId = soulmateContract.mintSoulmateToken();
-    //     // Assert that the tokenId returned is greater than zero, indicating success
-    //     assertGt(tokenId, 0);
-    // }
+    //////   bbbbbbbbbbbbbbbbbbbbbbb  bigbag boogy
 
     function test_getsTheRightSoulmate() public {
         vm.prank(alice);

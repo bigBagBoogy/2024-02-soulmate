@@ -51,6 +51,7 @@ contract Airdrop {
         if (soulmateContract.isDivorced()) revert Airdrop__CoupleIsDivorced();
 
         // Calculating since how long soulmates are reunited
+        // 10086401 - 10000000 = 86401 - 86400 = 1
         uint256 numberOfDaysInCouple = (
             block.timestamp - soulmateContract.idToCreationTimestamp(soulmateContract.ownerToId(msg.sender))
         ) / daysInSecond;
@@ -70,7 +71,7 @@ contract Airdrop {
         if (tokenAmountToDistribute >= loveToken.balanceOf(address(airdropVault))) {
             tokenAmountToDistribute = loveToken.balanceOf(address(airdropVault));
         }
-        // update _claimedBy = amount claimed by user
+        // update _claimedBy = amount claimed by user = effects in (CEI)
         _claimedBy[msg.sender] += tokenAmountToDistribute;
 
         emit TokenClaimed(msg.sender, tokenAmountToDistribute);

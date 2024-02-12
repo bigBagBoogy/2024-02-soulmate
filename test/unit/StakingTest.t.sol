@@ -120,9 +120,18 @@ contract StakingTest is BaseTest {
         console2.log("last claim: ", stakingContract.lastClaim(soulmate1));
 
         vm.warp(almost2weeks + 6 days); // now the user is staking for 20+ days
-        vm.expectRevert();
+        // vm.expectRevert();
         stakingContract.claimRewards(); // no, even after 20+ days the user can't claim a second token, because she minted at the "wrong" moment.
         console2.log("soulmate1's lovetoken balance: ", loveToken.balanceOf(soulmate1)); // 1
         console2.log("last claim: ", stakingContract.lastClaim(soulmate1));
+    }
+
+    // when the stakingVault only has 1 token left, then alice stakes 10,
+    // is the balance now 11? And can now Bob claim 10 tokens? (alice's tokens?)
+    function test_vaultAlmostEmpty() public {
+        // how much is in the vault initially?
+        console2.log((loveToken.balanceOf(address(stakingVault))));
+        _depositTokenToStake(10 ether);
+        console2.log((loveToken.balanceOf(address(stakingVault))));
     }
 }

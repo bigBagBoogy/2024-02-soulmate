@@ -43,6 +43,7 @@ contract Staking {
     }
 
     /// @notice Increase the userStakes variable and transfer LoveToken to this contract.
+    // strict
     function deposit(uint256 amount) public {
         if (loveToken.balanceOf(address(stakingVault)) == 0) {
             revert Staking__NoMoreRewards();
@@ -81,7 +82,8 @@ contract Staking {
             revert Staking__StakingPeriodTooShort();
         }
 
-        lastClaim[msg.sender] = block.timestamp;
+        // lastClaim[msg.sender] = block.timestamp;
+        lastClaim[msg.sender] += 1 weeks * timeInWeeksSinceLastClaim;
 
         // Send the same amount of LoveToken as the week waited times the number of token staked
         uint256 amountToClaim = userStakes[msg.sender] * timeInWeeksSinceLastClaim;
